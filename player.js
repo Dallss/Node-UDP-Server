@@ -1,35 +1,62 @@
-const dgram = require('dgram')
+import dgram from 'dgram';
 
-const client = dgram.createSocket('udp4')
+let playersPortStart = 1000;
+let offset = 0;
 
-
-
-message = Buffer.from('Hello is anyone there!')
-
-const serverHost = 'localhost'; // Replace with your server's IP address
-const serverPort = 8181;
-
-
-client.on('message', (msg, rinfo) => {
-    console.log(`Received response from server: ${msg} from ${rinfo.address}:${rinfo.port}`);
-    client.close();  // Close the client after receiving the response
-});
+const connect_code = 12345
+const server_host = 'localhost'; // Replace with your server's IP address
+const server_port = 8181;
   
-// Handle errors
-client.on('error', (err) => {
-    console.log(`Client error: ${err}`);
-    client.close();
-});
-
-
-// Send the message to the server
-client.send(message, 0, message.length, serverPort, serverHost, (err) => {
-    if (err) {
-      console.error('Error sending message:', err);
-      client.close();
-    } else {
-      console.log('Message sent to server!');
+const players = {
+    randall: {
+        socket: dgram.createSocket('udp4'),
+        x: 0,
+        y: 0,
+    },
+    Arwin: {
+        socket: dgram.createSocket('udp4'),
+        x: 0,
+        y: 0,
+    },
+    jeric: {
+        socket: dgram.createSocket('udp4'),
+        x: 0,
+        y: 0,
     }
-});
 
+}
+function connectPlayer(player){
+    player.socket.on('message', (msg, rinfo) => {
+        player.x = msg.readUInt16BE(1)
+        player.y = msg.readUInt16BE(2)
+
+        console.log(`player: ${Object.keys(player)[0]} x: ${player.x}, y: ${player.y}`)
+    });
+    player.socket.on('error', (err) => {
+        console.log(`Client binded on port: ${player.socket.port} error: ${err}.`);
+        player.socket.close();
+    });
+    player.socket.bind(playersPortStart, () => {
+        console.log(`Client bound to port: ${player.socket.address().port}`);
+
+        const connect_code_buff = Buffer.alloc(2);
+        connect_code_buff.writeUInt16BE(connect_code);
+
+        player.socket.send(connect_code_buff, server_port, server_host, (err) => {
+            if (err) {
+                console.log(`Error sending message: ${err}`);
+            } else {
+                console.log(`Sent connection code to server at ${server_host}:${server_port}`);
+            }
+        });
+    });
+
+    playersPortStart += 1
+}
+
+
+
+connectPlayer(players.randall)
+connectPlayer(players.Arwin)
+connectPlayer(players.jeric)
 
