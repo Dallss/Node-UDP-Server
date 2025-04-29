@@ -5,7 +5,6 @@ const FIELD_WIDTH = 370;
 const FIELD_HEIGHT = 1000;
 
 let online_players = [];
-let available_id = 0;
 
 // eventlisteners
 socket.on('message', (msg, info) => {
@@ -16,17 +15,15 @@ socket.on('message', (msg, info) => {
         const port = info.port;
         const host = info.address;
         const player = {
-            id: available_id,
             host: host,
             port: port,
-            x: randomInt(0, 370),
-            y: randomInt(0, 1000),
+            x: randomInt(0, FIELD_WIDTH),
+            y: randomInt(0, FIELD_HEIGHT),
         };
 
         online_players.push(player);
         console.log(`port: ${info.port} is joined`);
 
-        available_id += 1;
     } else {
         console.log(`port: ${info.port} tried to join`);
     }
@@ -47,15 +44,10 @@ console.log('gameloop starting');
 function gameLoop() {
     if(online_players.length >= 1){
         for (const player of online_players) {
-            // abstract this serialization
-            // one byte for player id, 4 bytes for coordinates
-            const coords = Buffer.alloc(5);
-            coords.writeUInt16BE(player.id, 0);
-            coords.writeUInt16BE(player.x, 1);
+            const coords = Buffer.alloc(4);
+            coords.writeUInt16BE(player.x, 0);
             coords.writeUInt16BE(player.y, 2);
             socket.send(coords, player.port, player.host);
-
-            player.y +=1;
         }
     }
 
