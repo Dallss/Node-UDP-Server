@@ -2,8 +2,11 @@
   "name": "udp-sandboxing",
   "version": "1.0.0",
   "description": "sandbox for learning udp",
-  "main": "gameserver.js",
   "type": "module",
+  "module": "player.js",
+  "exports": {
+    ".": "./player.js"
+  },
   "scripts": {
     "test": "test",
     "start": "node gameserver.js"

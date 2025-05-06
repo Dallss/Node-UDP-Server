@@ -1,5 +1,5 @@
 import dgram from 'dgram';
-class player {
+class Player {
     constructor(name, code){
         this.connect_code = code || 12345
         this.socket = dgram.createSocket('udp4')
@@ -35,7 +35,7 @@ class player {
     }
 }
 
-export default player
+export { Player } 
 
 
 
