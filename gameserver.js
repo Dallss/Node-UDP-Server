@@ -1,7 +1,7 @@
 import dgram from 'dgram';
 const socket = dgram.createSocket('udp4');
 
-const FIELD_WIDTH = 370;
+const FIELD_WIDTH = 1000;
 const FIELD_HEIGHT = 1000;
 
 let online_players = [];
@@ -35,7 +35,7 @@ socket.on('error', (e) => {
 
 // bind
 socket.bind(8181, () => {
-    console.log('Server Online.');
+    console.log('Server Online. on port 8181');
 
     gameLoop();
 });
